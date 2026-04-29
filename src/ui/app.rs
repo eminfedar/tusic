@@ -272,7 +272,7 @@ impl<T: AudioBackend> App<T> {
         ]);
 
         let p = Paragraph::new(header_text)
-            .style(Style::default().fg(Color::White))
+            .style(Style::default())
             .block(Block::default().borders(Borders::NONE));
 
         f.render_widget(p, area);

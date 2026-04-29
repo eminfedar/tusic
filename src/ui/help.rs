@@ -40,7 +40,7 @@ pub fn render_help(f: &mut Frame, area: Rect) {
     let lines = vec![line1, line2];
 
     let p = Paragraph::new(lines)
-        .style(Style::default().fg(Color::White))
+        .style(Style::default())
         .block(Block::default().borders(Borders::NONE));
 
     f.render_widget(p, area);

@@ -92,7 +92,7 @@ fn render_progressbar<'a>(position_ms: u64, duration_ms: u64) -> Gauge<'a> {
         .style(Modifier::BOLD)
         .ratio(progress_ratio)
         .label(progress_text)
-        .gauge_style(Style::default().green().on_black())
+        .gauge_style(Style::default().green())
         .use_unicode(true)
 }
 

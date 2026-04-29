@@ -40,7 +40,7 @@ pub fn render_search_input(f: &mut Frame, area: Rect, model: &Model) {
     };
 
     let p = ratatui::widgets::Paragraph::new(input_text)
-        .style(Style::default().fg(Color::White))
+        .style(Style::default())
         .block(Block::default());
 
     f.render_widget(p, inner);
@@ -109,7 +109,7 @@ pub fn render_search_results(
             let style = if is_selected {
                 Style::default().fg(Color::Cyan).bold()
             } else {
-                Style::default().fg(Color::White)
+                Style::default()
             };
 
             let prefix = if is_selected { "▶ " } else { "  " };
