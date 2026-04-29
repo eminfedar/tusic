@@ -4,8 +4,8 @@ use ratatui::style::Modifier;
 use ratatui::{
     layout::Rect,
     style::{Color, Style},
-    text::{Line, Span},
-    widgets::{Block, Borders, Gauge, Paragraph},
+    text::Span,
+    widgets::{Block, Borders, Gauge},
     Frame,
 };
 
@@ -36,8 +36,19 @@ pub fn render_player(f: &mut Frame, area: Rect, model: &Model) {
         RepeatMode::None => "Loop:Off",
     };
 
+    // Title
+    let track = model.current_track();
+    let title = if let Some(track) = track {
+        Span::styled(
+            format!(" {status_text} - {} ", &track.title),
+            Style::default().bold(),
+        )
+    } else {
+        Span::raw(" Player ")
+    };
+
     let block = Block::default()
-        .title(format!(" Player {status_text} "))
+        .title(title)
         .title_bottom(format!(" {shuffle_text} - {loop_text} "))
         .borders(Borders::ALL)
         .border_style(border_style);
@@ -45,34 +56,9 @@ pub fn render_player(f: &mut Frame, area: Rect, model: &Model) {
     let inner = block.inner(area);
     f.render_widget(block, area);
 
-    let track = model.current_track();
-
-    let mut lines = Vec::new();
-
-    // Title
-    if let Some(track) = track {
-        lines.push(Line::from(Span::styled(
-            &track.title,
-            Style::default().bold(),
-        )));
-    } else {
-        lines.push(Line::from("No track selected"));
-    }
-
     // Progress bar
     let gauge = render_progressbar(playback.position_ms, playback.duration_ms);
-    let mut gauge_area = inner;
-    gauge_area.y += lines.len() as u16;
-    gauge_area.height = 1;
-    f.render_widget(gauge, gauge_area);
-
-    let p = Paragraph::new(lines)
-        .style(Style::default())
-        .block(Block::default());
-
-    let mut render_area = inner;
-    render_area.height = inner.height.saturating_sub(1);
-    f.render_widget(p, render_area);
+    f.render_widget(gauge, inner);
 }
 
 fn render_progressbar<'a>(position_ms: u64, duration_ms: u64) -> Gauge<'a> {
