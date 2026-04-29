@@ -52,7 +52,7 @@ pub fn calculate_layout(area: Rect, model: &Model) -> LayoutRegions {
 
     let left_chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(3), Constraint::Min(3)])
+        .constraints([Constraint::Max(3), Constraint::Fill(1)])
         .split(left_column);
 
     let right_chunks = Layout::default()

@@ -20,7 +20,7 @@ pub fn render_player(f: &mut Frame, area: Rect, model: &Model) {
     let playback = &model.playback;
 
     let status_text = match playback.status {
-        PlaybackStatus::Playing => "▶ Playing",
+        PlaybackStatus::Playing => "▸ Playing",
         PlaybackStatus::Paused => "⏸ Paused",
         PlaybackStatus::Stopped => "⏹ Stopped",
     };
@@ -41,7 +41,7 @@ pub fn render_player(f: &mut Frame, area: Rect, model: &Model) {
     let title = if let Some(track) = track {
         Span::styled(
             format!(" {status_text} - {} ", &track.title),
-            Style::default().bold(),
+            Style::reset().bold(),
         )
     } else {
         Span::raw(" Player ")

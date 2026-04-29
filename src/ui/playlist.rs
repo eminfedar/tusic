@@ -43,7 +43,7 @@ pub fn render_playlist(f: &mut Frame, area: Rect, model: &Model, state: &mut Pla
             let (prefix, mut style) = if has_error {
                 ("⚠️".to_string(), Style::default().fg(Color::Red))
             } else if is_current {
-                ("▶ ".to_string(), Style::default().fg(Color::Green).bold())
+                ("▸ ".to_string(), Style::default().fg(Color::Green).bold())
             } else if context.is_selected {
                 ("  ".to_string(), Style::default().fg(Color::Yellow).bold())
             } else {
@@ -56,7 +56,12 @@ pub fn render_playlist(f: &mut Frame, area: Rect, model: &Model, state: &mut Pla
 
             let name = track.display_name();
             let name = if name.len() > area.width as usize - 6 {
-                format!("{}...", &name[..area.width as usize - 9])
+                let end = name
+                    .char_indices()
+                    .map(|(i, _)| i)
+                    .nth(area.width as usize - 9)
+                    .unwrap();
+                format!("{}...", &name[..end])
             } else {
                 name
             };

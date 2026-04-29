@@ -27,7 +27,7 @@ pub fn render_search_input(f: &mut Frame, area: Rect, model: &Model) {
     };
 
     let block = Block::default()
-        .title("YouTube Search")
+        .title(" YouTube Search ")
         .borders(ratatui::widgets::Borders::ALL)
         .border_style(border_style);
 
@@ -127,7 +127,7 @@ pub fn render_search_results(
                 style = style.dim()
             }
 
-            let prefix = if is_selected { "▶ " } else { "  " };
+            let prefix = if is_selected { "> " } else { "  " };
 
             let duration = format_duration(track.duration_ms);
             let display_text = if track.channel.is_empty() {
