@@ -2,6 +2,11 @@
 name = "tusic"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "Lightweight TUI Music Player written in Rust + ratatui. Download Youtube music and play."
+repository = "https://github.com/eminfedar/tusic"
+authors = ["Emin Fedar <eminfedar@gmail.com>"]
+
 
 [profile.release]
 strip = true # Automatically strip symbols from the binary.
