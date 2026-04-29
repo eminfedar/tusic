@@ -342,6 +342,7 @@ pub fn update<T: AudioBackend>(
                     let idx = model.playlist.push(track.clone());
 
                     model.current_index = Some(idx);
+                    model.ui.active_panel = ActivePanel::Playlist;
                     play_track(idx, model, player);
 
                     model.add_log(&format!("Downloaded: {}", track.display_name()));
