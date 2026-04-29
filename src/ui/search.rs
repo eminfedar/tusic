@@ -1,5 +1,8 @@
 use crate::model::{ActivePanel, Model};
 use crate::youtube::YoutubeTrack;
+use ratatui::style::Modifier;
+use ratatui::symbols;
+use ratatui::text::Span;
 use ratatui::{
     layout::Rect,
     style::{Color, Style},
@@ -34,12 +37,20 @@ pub fn render_search_input(f: &mut Frame, area: Rect, model: &Model) {
     let query = &model.search.query;
 
     let input_text = if query.is_empty() {
-        "> Search YouTube...".to_string()
+        Span::from("Search YouTube...").style(Style::new().dim())
     } else {
-        format!("> {}", query)
+        Span::from(query)
     };
 
-    let p = ratatui::widgets::Paragraph::new(input_text)
+    let blinking_caret =
+        Span::raw(symbols::block::FULL).style(Style::new().add_modifier(Modifier::RAPID_BLINK));
+    let lines = if is_active {
+        Line::from(vec![input_text, blinking_caret])
+    } else {
+        Line::from(vec![input_text])
+    };
+
+    let p = ratatui::widgets::Paragraph::new(lines)
         .style(Style::default())
         .block(Block::default());
 
