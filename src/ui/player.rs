@@ -37,7 +37,7 @@ pub fn render_player(f: &mut Frame, area: Rect, model: &Model) {
     };
 
     let block = Block::default()
-        .title(format!(" Player {status_text}"))
+        .title(format!(" Player {status_text} "))
         .title_bottom(format!(" {shuffle_text} - {loop_text} "))
         .borders(Borders::ALL)
         .border_style(border_style);

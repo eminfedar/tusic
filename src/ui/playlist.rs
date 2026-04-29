@@ -40,7 +40,7 @@ pub fn render_playlist(f: &mut Frame, area: Rect, model: &Model, state: &mut Pla
             let is_current = current_index == Some(idx);
             let has_error = is_current && model.ui.playback_error.is_some();
 
-            let (prefix, style) = if has_error {
+            let (prefix, mut style) = if has_error {
                 ("⚠️".to_string(), Style::default().fg(Color::Red))
             } else if is_current {
                 ("▶ ".to_string(), Style::default().fg(Color::Green).bold())
@@ -49,6 +49,10 @@ pub fn render_playlist(f: &mut Frame, area: Rect, model: &Model, state: &mut Pla
             } else {
                 ("  ".to_string(), Style::default())
             };
+
+            if !is_active {
+                style = style.dim()
+            }
 
             let name = track.display_name();
             let name = if name.len() > area.width as usize - 6 {

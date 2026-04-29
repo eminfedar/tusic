@@ -117,11 +117,15 @@ pub fn render_search_results(
             let track: &YoutubeTrack = &results[idx];
             let is_selected = context.is_selected;
 
-            let style = if is_selected {
+            let mut style = if is_selected {
                 Style::default().fg(Color::Cyan).bold()
             } else {
                 Style::default()
             };
+
+            if !is_active {
+                style = style.dim()
+            }
 
             let prefix = if is_selected { "▶ " } else { "  " };
 
