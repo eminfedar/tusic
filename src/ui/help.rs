@@ -7,13 +7,15 @@ use ratatui::{
 };
 
 pub fn render_help(f: &mut Frame, area: Rect) {
-    if area.height < 1 {
+    if area.height < 2 {
         return;
     }
 
-    let help_text = Line::from(vec![
+    let line1 = Line::from(vec![
         Span::styled("[space] ", Style::default().fg(Color::Yellow).bold()),
         Span::raw("Play/Pause  "),
+        Span::styled(" [-][+] ", Style::default().fg(Color::Yellow).bold()),
+        Span::raw("Volume  "),
         Span::styled("[←/→] ", Style::default().fg(Color::Yellow).bold()),
         Span::raw("-/+5s  "),
         Span::styled("[ctrl+←/→] ", Style::default().fg(Color::Yellow).bold()),
@@ -22,6 +24,11 @@ pub fn render_help(f: &mut Frame, area: Rect) {
         Span::raw("Loop  "),
         Span::styled("[s] ", Style::default().fg(Color::Yellow).bold()),
         Span::raw("Shuffle  "),
+    ]);
+
+    let line2 = Line::from(vec![
+        Span::styled("[enter] ", Style::default().fg(Color::Yellow).bold()),
+        Span::raw("Select & Play  "),
         Span::styled("[tab] ", Style::default().fg(Color::Yellow).bold()),
         Span::raw("Switch panel  "),
         Span::styled("[y] ", Style::default().fg(Color::Yellow).bold()),
@@ -30,7 +37,9 @@ pub fn render_help(f: &mut Frame, area: Rect) {
         Span::raw("Quit"),
     ]);
 
-    let p = Paragraph::new(help_text)
+    let lines = vec![line1, line2];
+
+    let p = Paragraph::new(lines)
         .style(Style::default().fg(Color::White))
         .block(Block::default().borders(Borders::NONE));
 

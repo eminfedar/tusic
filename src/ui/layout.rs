@@ -14,7 +14,7 @@ pub struct LayoutRegions {
 }
 
 pub fn calculate_layout(area: Rect, model: &Model) -> LayoutRegions {
-    let help_height = if model.ui.show_help { 1 } else { 0 };
+    let help_height = if model.ui.show_help { 2 } else { 0 };
     let header_height = 1;
 
     let chunks = Layout::default()
@@ -40,7 +40,7 @@ pub fn calculate_layout(area: Rect, model: &Model) -> LayoutRegions {
 
     let left_right = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(40), Constraint::Percentage(60)])
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
         .split(main_area);
 
     let left_column = if model.ui.show_youtube {
@@ -52,7 +52,7 @@ pub fn calculate_layout(area: Rect, model: &Model) -> LayoutRegions {
 
     let left_chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(10), Constraint::Min(3)])
+        .constraints([Constraint::Length(4), Constraint::Min(3)])
         .split(left_column);
 
     let right_chunks = Layout::default()

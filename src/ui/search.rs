@@ -125,7 +125,7 @@ pub fn render_search_results(
                 let end = display_text
                     .char_indices()
                     .map(|(i, _)| i)
-                    .nth(inner.width as usize - 11)
+                    .nth(inner.width as usize - 13)
                     .unwrap(); // unicode chars fix
 
                 format!("{}...{}", &display_text[..end], duration)
