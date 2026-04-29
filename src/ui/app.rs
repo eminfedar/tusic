@@ -241,7 +241,7 @@ impl<T: AudioBackend> App<T> {
     }
 
     fn render_header(&self, f: &mut Frame, area: Rect, model: &Model) {
-        let title = " TUSIC2 ";
+        let title = " TUSIC ";
 
         let track_info = if let Some(idx) = model.current_index {
             let total = model.playlist.len();
