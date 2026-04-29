@@ -1,0 +1,43 @@
+[package]
+name = "tusic"
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+strip = true # Automatically strip symbols from the binary.
+lto = true
+
+
+[dependencies]
+ratatui = "0.30"
+crossterm = "0.29"
+tui-widget-list = "0.15"
+
+# Audio
+clap = { version = "4.4", features = ["derive"] }
+rodio = { version = "0.22", features = [
+    "playback",
+    "symphonia-all",
+    "symphonia-isomp4",
+    "symphonia-simd",
+] }
+# symphonia = { version = "*", features = ["all"] }
+cpal = "0.17"
+
+# utils
+dirs = "6.0"
+anyhow = "*"
+thiserror = "2"
+inotify = "0.11"
+rand = "*"
+
+# Async
+smol = "2"
+async-compat = "0.2"
+
+# Youtube
+yt-dlp = { version = "*", features = ["rustls"] } #only for download
+rusty_ytdl = { version = "0.7", default-features = false, features = [
+    "search",
+    "rustls-tls",
+] } # only for searching.
