@@ -155,7 +155,7 @@ pub fn render_search_results(
             let line = Line::from(vec![
                 ratatui::text::Span::raw(prefix),
                 ratatui::text::Span::styled(name, style),
-                ratatui::text::Span::raw(duration),
+                ratatui::text::Span::styled(duration, style),
             ]);
             (line, 1)
         }),
