@@ -46,3 +46,9 @@ rusty_ytdl = { version = "0.7", default-features = false, features = [
     "search",
     "rustls-tls",
 ] } # only for searching.
+
+
+[package.metadata.generate-rpm]
+assets = [
+    { source = "target/release/tusic", dest = "/usr/bin/tusic", mode = "755" },
+]
