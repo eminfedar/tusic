@@ -130,27 +130,32 @@ pub fn render_search_results(
             let prefix = if is_selected { "> " } else { "  " };
 
             let duration = format_duration(track.duration_ms);
-            let display_text = if track.channel.is_empty() {
-                format!("{}{}", track.title, duration)
+            let name = if track.channel.is_empty() {
+                track.title.clone()
             } else {
-                format!("{} - {}{}", track.title, track.channel, duration)
+                format!("{} - {}", track.title, track.channel)
             };
 
-            let display_text = if display_text.len() > inner.width as usize - 8 {
-                let end = display_text
-                    .char_indices()
-                    .map(|(i, _)| i)
-                    .nth(inner.width as usize - 13)
-                    .unwrap(); // unicode chars fix
+            // Ellipsize text if larger than width
+            let char_indices: Vec<usize> = name.char_indices().map(|(i, _c)| i).collect();
+            let width_limit = (inner.width - 2) as usize - duration.len();
 
-                format!("{}...{}", &display_text[..end], duration)
+            let name = if char_indices.len() > width_limit {
+                match char_indices.get(width_limit - 2) {
+                    // 3 is the appended length of spaces: " " + ".."
+                    Some(&end) => {
+                        format!("{}..", &name[..end])
+                    }
+                    None => name,
+                }
             } else {
-                display_text
+                name
             };
 
             let line = Line::from(vec![
                 ratatui::text::Span::raw(prefix),
-                ratatui::text::Span::styled(display_text, style),
+                ratatui::text::Span::styled(name, style),
+                ratatui::text::Span::raw(duration),
             ]);
             (line, 1)
         }),

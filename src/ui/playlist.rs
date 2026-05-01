@@ -55,16 +55,6 @@ pub fn render_playlist(f: &mut Frame, area: Rect, model: &Model, state: &mut Pla
             }
 
             let name = track.display_name();
-            let name = if name.len() > area.width as usize - 6 {
-                let end = name
-                    .char_indices()
-                    .map(|(i, _)| i)
-                    .nth(area.width as usize - 9)
-                    .unwrap();
-                format!("{}...", &name[..end])
-            } else {
-                name
-            };
 
             let line = Line::from(vec![
                 ratatui::text::Span::raw(prefix),
