@@ -1,12 +1,12 @@
-use crate::audio::backend::AudioBackend;
 use crate::audio::decoder::get_audio_info;
+use crate::audio::AudioBackend;
 use anyhow::Result;
 use rodio::{Decoder, DeviceSinkBuilder, MixerDeviceSink, Player};
 use std::fs::File;
 use std::path::Path;
 
 pub struct RodioBackend {
-    _sink: MixerDeviceSink,
+    sink: MixerDeviceSink,
     player: Option<Player>,
     volume: i8,
     position_ms: u64,
@@ -19,9 +19,9 @@ impl RodioBackend {
         sink.log_on_drop(false);
 
         Ok(Self {
-            _sink: sink,
+            sink: sink,
             player: None,
-            volume: 80,
+            volume: 100,
             position_ms: 0,
             duration_ms: 0,
         })
@@ -46,7 +46,7 @@ impl AudioBackend for RodioBackend {
             .with_data(file)
             .build()?;
 
-        let player = Player::connect_new(self._sink.mixer());
+        let player = Player::connect_new(self.sink.mixer());
 
         let vol = self.volume as f32 / 100.0;
         player.set_volume(vol);

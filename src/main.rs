@@ -12,8 +12,7 @@ mod youtube;
 use clap::Parser;
 use cli::Args;
 
-use crate::audio::RodioBackend;
-use crate::ui::App;
+use crate::{audio::rodio::RodioBackend, ui::App};
 
 fn main() -> anyhow::Result<()> {
     let _args = Args::parse();
