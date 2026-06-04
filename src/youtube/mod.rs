@@ -51,13 +51,11 @@ pub struct YoutubeService {
 }
 
 impl YoutubeService {
-    pub async fn new(download_dir: PathBuf) -> anyhow::Result<Self> {
-        let config_base = dirs::config_dir().unwrap_or(".".into()).join("tusic");
-
+    pub async fn new(download_dir: PathBuf, config_dir: &Path) -> anyhow::Result<Self> {
         // Install yt-dlp:
-        let ytdlp_path = config_base.clone().join("yt-dlp");
+        let ytdlp_path = config_dir.join("yt-dlp");
         if !ytdlp_path.exists() {
-            let installer = LibraryInstaller::new(config_base);
+            let installer = LibraryInstaller::new(config_dir.to_path_buf());
             println!(
                 "Downloading yt-dlp binary, please wait (this may take a minute, size: 36MB~)"
             );

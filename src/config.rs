@@ -38,6 +38,12 @@ impl Config {
             .join("config.toml")
     }
 
+    pub fn config_dir() -> PathBuf {
+        dirs::config_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join("tusic")
+    }
+
     /// Load the config from disk, falling back to defaults if missing or invalid.
     pub fn load() -> Self {
         match std::fs::read_to_string(Self::config_path()) {

@@ -50,6 +50,10 @@ rusty_ytdl = { version = "0.7", default-features = false, features = [
     "rustls-tls",
 ] } # only for searching.
 
+# yt-dlp downloader
+downloader = {version="0.2", default-features = false, features = ["rustls-tls"]}
+indicatif="0.18"
+
 
 [package.metadata.generate-rpm]
 assets = [
