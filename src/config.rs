@@ -20,7 +20,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         let scan_dirs = dirs::audio_dir()
-            .map(|p| vec![p.to_string_lossy().into_owned()])
+            .map(|p| vec![p.join("tusic").to_string_lossy().into_owned()])
             .unwrap_or_default();
 
         Self {
