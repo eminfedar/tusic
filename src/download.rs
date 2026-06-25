@@ -1,12 +1,14 @@
 use std::{
-    fs::{create_dir_all, Permissions},
+    fs::{create_dir_all, read_to_string, Permissions},
     os::unix::fs::PermissionsExt,
     path::Path,
     sync::Arc,
 };
 
+use anyhow::Context;
 use downloader::{progress::Reporter, Download, Downloader};
 use indicatif::{ProgressBar, ProgressStyle};
+use sha2::{Digest, Sha256};
 
 struct DownloadProgress {
     pb: ProgressBar,
@@ -40,13 +42,49 @@ impl Reporter for DownloadProgress {
     }
 }
 
+fn parse_checksum(content: &str, filename: &str) -> Option<String> {
+    for line in content.lines() {
+        let parts: Vec<&str> = line.splitn(2, ' ').map(|s| s.trim()).collect();
+        if parts.len() == 2 && parts[1].to_lowercase() == filename.to_lowercase() {
+            return Some(parts[0].to_string());
+        }
+    }
+    None
+}
+
+fn sha256_of_file(path: &Path) -> anyhow::Result<String> {
+    let bytes =
+        std::fs::read(path).with_context(|| format!("Could not read file: {}", path.display()))?;
+    let digest = Sha256::digest(&bytes);
+    Ok(hex::encode(digest))
+}
+
+fn verify_checksum(
+    checksum_path: &Path,
+    yt_dlp_path: &Path,
+    filename: &str,
+) -> anyhow::Result<String> {
+    let content = read_to_string(checksum_path)
+        .with_context(|| format!("Could not read checksum file: {}", checksum_path.display()))?;
+    let expected = parse_checksum(&content, filename)
+        .with_context(|| format!("Could not find checksum for {}", filename))?;
+
+    let got = sha256_of_file(yt_dlp_path)?;
+    if got != expected {
+        anyhow::bail!("Checksum mismatch: expected {} got {}", expected, got);
+    }
+    Ok(got)
+}
+
 pub fn download_ytdlp(config_dir: &Path) -> anyhow::Result<()> {
     // Create config dir if not exists
     if !config_dir.exists() {
         create_dir_all(config_dir)?;
     }
 
+    let ytdlp_sha256checksum_path = config_dir.join("SHA2-256SUMS");
     let ytdlp_path = config_dir.join("yt-dlp");
+
     if ytdlp_path.exists() {
         // yt-dlp already exists, no need to download
         return Ok(());
@@ -57,25 +95,61 @@ pub fn download_ytdlp(config_dir: &Path) -> anyhow::Result<()> {
         .parallel_requests(8)
         .build()?;
 
+    let yt_dlp_release_url = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/";
+    let yt_dlp_sha256checksum = "SHA2-256SUMS";
     #[cfg(target_os = "linux")]
-    let yt_dlp_url = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux";
+    let yt_dlp_binary = "yt-dlp_linux";
     #[cfg(target_os = "macos")]
-    let yt_dlp_url = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos";
+    let yt_dlp_binary = "yt-dlp_macos";
     #[cfg(target_os = "windows")]
-    let yt_dlp_url = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
+    let yt_dlp_binary = "yt-dlp.exe";
 
-    let dl = Download::new(yt_dlp_url)
+    let yt_dlp_url = format!("{}{}", yt_dlp_release_url, yt_dlp_binary);
+    let yt_dlp_sha256_url = format!("{}{}", yt_dlp_release_url, yt_dlp_sha256checksum);
+
+    // download for yt-dlp binary
+    let dl = Download::new(&yt_dlp_url)
         .file_name(&ytdlp_path)
         .progress(Arc::new(DownloadProgress::new(0)));
 
-    let result = downloader.download(&[dl])?;
+    // download for yt-dlp SHA2-256 checksum
+    let dl_sha256 = Download::new(&yt_dlp_sha256_url)
+        .file_name(&ytdlp_sha256checksum_path)
+        .progress(Arc::new(DownloadProgress::new(0)));
+
+    let result = downloader.download(&[dl, dl_sha256])?;
+
+    let hash = verify_checksum(&ytdlp_sha256checksum_path, &ytdlp_path, yt_dlp_binary)
+        .inspect_err(|_| {
+            // remove the downloaded file if the checksum verification fails
+            let _ = std::fs::remove_file(&ytdlp_path);
+        })
+        .context("Checksum verification failed. Removed potentially corrupt binary.")?;
+
+    println!("Checksum verified: {hash}");
+
+    // helper function to convert path to file name string
+    fn file_name_str(path: &Path) -> &str {
+        path.file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or_default()
+    }
 
     for r in result {
         match r {
             Err(e) => println!("Error: {e}"),
             Ok(s) => {
-                std::fs::set_permissions(&ytdlp_path, Permissions::from_mode(0o0775))?;
                 println!("Download Success: {}", &s);
+
+                let name_from_downloader = file_name_str(&s.file_name);
+                let yt_dlp_name = file_name_str(&ytdlp_path);
+                println!(
+                    "Name from downloader: {} == {}",
+                    &name_from_downloader, &yt_dlp_name
+                );
+                if name_from_downloader == yt_dlp_name {
+                    std::fs::set_permissions(&ytdlp_path, Permissions::from_mode(0o0775))?;
+                }
             }
         };
     }
