@@ -311,6 +311,9 @@ impl<T: AudioBackend> App<T> {
             (KeyCode::Char('c'), _) => Message::ToggleSettings,
             (KeyCode::Char('r'), _) if active_playlist => Message::CycleRepeat,
             (KeyCode::Char('s'), _) if active_playlist => Message::ToggleShuffle,
+            (KeyCode::Char('d'), _) if has_ctrl && (active_playlist || active_search_results) => {
+                Message::ScrollDownHalf
+            }
             (KeyCode::Char('d'), _) if active_playlist => Message::RequestDeleteTrack,
             (KeyCode::Delete, _) if active_playlist => Message::RequestDeleteTrack,
             (KeyCode::Char('?'), _) if active_playlist => Message::ToggleHelp,
@@ -322,14 +325,25 @@ impl<T: AudioBackend> App<T> {
             (KeyCode::Left, _) if active_playlist => Message::SeekBackward,
             (KeyCode::Up, _) if active_playlist || active_search_results => Message::ScrollUp,
             (KeyCode::Down, _) if active_playlist || active_search_results => Message::ScrollDown,
+            (KeyCode::Char('k'), _) if active_playlist || active_search_results => Message::ScrollUp,
+            (KeyCode::Char('j'), _) if active_playlist || active_search_results => {
+                Message::ScrollDown
+            }
             (KeyCode::PageUp, _) if active_playlist || active_search_results => {
                 Message::ScrollUpHalf
             }
             (KeyCode::PageDown, _) if active_playlist || active_search_results => {
                 Message::ScrollDownHalf
             }
+            (KeyCode::Char('u'), _) if has_ctrl && (active_playlist || active_search_results) => {
+                Message::ScrollUpHalf
+            }
             (KeyCode::Home, _) if active_playlist || active_search_results => Message::ScrollTop,
             (KeyCode::End, _) if active_playlist || active_search_results => Message::ScrollBottom,
+            (KeyCode::Char('g'), _) if active_playlist || active_search_results => Message::ScrollTop,
+            (KeyCode::Char('G'), _) if active_playlist || active_search_results => {
+                Message::ScrollBottom
+            }
 
             (KeyCode::Char('+'), _) if active_playlist => Message::IncreaseVolume,
             (KeyCode::Char('-'), _) if active_playlist => Message::DecreaseVolume,
