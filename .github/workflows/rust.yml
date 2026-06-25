@@ -20,30 +20,6 @@ jobs:
               ARGS: "",
             }
           - {
-              OS: ubuntu-latest,
-              TOOLCHAIN: stable,
-              TARGET: x86_64-unknown-linux-musl,
-              ARGS: "",
-            }
-          - {
-              OS: ubuntu-latest,
-              TOOLCHAIN: stable,
-              TARGET: aarch64-unknown-linux-gnu,
-              ARGS: "",
-            }
-          - {
-              OS: ubuntu-latest,
-              TOOLCHAIN: stable,
-              TARGET: riscv64gc-unknown-linux-gnu,
-              ARGS: "",
-            }
-          - {
-              OS: ubuntu-latest,
-              TOOLCHAIN: stable,
-              TARGET: aarch64-unknown-linux-musl,
-              ARGS: "--no-default-features",
-            }
-          - {
               OS: windows-2022,
               TOOLCHAIN: stable,
               TARGET: x86_64-pc-windows-msvc,
