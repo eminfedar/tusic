@@ -58,7 +58,6 @@ jobs:
       - name: Build
         uses: actions-rs/cargo@v1
         with:
-          use-cross: ${{ matrix.build.OS != 'windows-2022' }}
           command: build
           args: --release --locked --target ${{ matrix.build.TARGET }} ${{ matrix.build.ARGS }}
 
@@ -66,7 +65,6 @@ jobs:
         shell: bash
         run: |
           mkdir -p release
-          cp {LICENSE-MIT,LICENSE-APACHE,README.md,CHANGELOG.md} release/
           if [ "${{ matrix.build.OS }}" = "windows-2022" ]; then
             cp target/${{ matrix.build.TARGET }}/release/tusic.exe release/
           else
