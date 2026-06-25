@@ -14,31 +14,31 @@ jobs:
       matrix:
         build:
           - {
-              OS: ubuntu-22.04,
+              OS: ubuntu-latest,
               TOOLCHAIN: stable,
               TARGET: x86_64-unknown-linux-gnu,
               ARGS: "",
             }
           - {
-              OS: ubuntu-22.04,
+              OS: ubuntu-latest,
               TOOLCHAIN: stable,
               TARGET: x86_64-unknown-linux-musl,
               ARGS: "",
             }
           - {
-              OS: ubuntu-22.04,
+              OS: ubuntu-latest,
               TOOLCHAIN: stable,
               TARGET: aarch64-unknown-linux-gnu,
               ARGS: "",
             }
           - {
-              OS: ubuntu-22.04,
+              OS: ubuntu-latest,
               TOOLCHAIN: stable,
               TARGET: riscv64gc-unknown-linux-gnu,
               ARGS: "",
             }
           - {
-              OS: ubuntu-22.04,
+              OS: ubuntu-latest,
               TOOLCHAIN: stable,
               TARGET: aarch64-unknown-linux-musl,
               ARGS: "--no-default-features",
@@ -64,7 +64,7 @@ jobs:
         run: echo "RELEASE_VERSION=${GITHUB_REF:11}" >> "$GITHUB_ENV"
 
       - name: Install system dependencies (Ubuntu)
-        if: matrix.build.OS == 'ubuntu-22.04'
+        if: matrix.build.OS == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y libasound2-dev
@@ -112,21 +112,21 @@ jobs:
           fi
 
       - name: Install cargo-deb and cargo-generate-rpm
-        if: matrix.build.OS == 'ubuntu-22.04'
+        if: matrix.build.OS == 'ubuntu-latest'
         run: |
           cargo install cargo-deb
           cargo install cargo-generate-rpm
 
       - name: Build .deb package
-        if: matrix.build.OS == 'ubuntu-22.04' && (matrix.build.TARGET == 'x86_64-unknown-linux-gnu' || matrix.build.TARGET == 'aarch64-unknown-linux-gnu')
+        if: matrix.build.OS == 'ubuntu-latest' && (matrix.build.TARGET == 'x86_64-unknown-linux-gnu' || matrix.build.TARGET == 'aarch64-unknown-linux-gnu')
         run: cargo deb --target ${{ matrix.build.TARGET }} --no-build ${{ matrix.build.ARGS }}
 
       - name: Build .rpm package
-        if: matrix.build.OS == 'ubuntu-22.04' && (matrix.build.TARGET == 'x86_64-unknown-linux-gnu' || matrix.build.TARGET == 'aarch64-unknown-linux-gnu')
+        if: matrix.build.OS == 'ubuntu-latest' && (matrix.build.TARGET == 'x86_64-unknown-linux-gnu' || matrix.build.TARGET == 'aarch64-unknown-linux-gnu')
         run: cargo generate-rpm --target ${{ matrix.build.TARGET }} ${{ matrix.build.ARGS }}
 
       - name: Move package artifacts
-        if: matrix.build.OS == 'ubuntu-22.04' && (matrix.build.TARGET == 'x86_64-unknown-linux-gnu' || matrix.build.TARGET == 'aarch64-unknown-linux-gnu')
+        if: matrix.build.OS == 'ubuntu-latest' && (matrix.build.TARGET == 'x86_64-unknown-linux-gnu' || matrix.build.TARGET == 'aarch64-unknown-linux-gnu')
         shell: bash
         run: |
           mkdir -p packages
