@@ -63,6 +63,12 @@ jobs:
         shell: bash
         run: echo "RELEASE_VERSION=${GITHUB_REF:11}" >> "$GITHUB_ENV"
 
+      - name: Install system dependencies (Ubuntu)
+        if: matrix.build.OS == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev
+
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -104,6 +110,28 @@ jobs:
             shasum -a 512 tusic-${{ env.RELEASE_VERSION }}-${{ matrix.build.TARGET }}.tar.gz \
               > tusic-${{ env.RELEASE_VERSION }}-${{ matrix.build.TARGET }}.tar.gz.sha512
           fi
+
+      - name: Install cargo-deb and cargo-generate-rpm
+        if: matrix.build.OS == 'ubuntu-22.04'
+        run: |
+          cargo install cargo-deb
+          cargo install cargo-generate-rpm
+
+      - name: Build .deb package
+        if: matrix.build.OS == 'ubuntu-22.04' && (matrix.build.TARGET == 'x86_64-unknown-linux-gnu' || matrix.build.TARGET == 'aarch64-unknown-linux-gnu')
+        run: cargo deb --target ${{ matrix.build.TARGET }} --no-build ${{ matrix.build.ARGS }}
+
+      - name: Build .rpm package
+        if: matrix.build.OS == 'ubuntu-22.04' && (matrix.build.TARGET == 'x86_64-unknown-linux-gnu' || matrix.build.TARGET == 'aarch64-unknown-linux-gnu')
+        run: cargo generate-rpm --target ${{ matrix.build.TARGET }} ${{ matrix.build.ARGS }}
+
+      - name: Move package artifacts
+        if: matrix.build.OS == 'ubuntu-22.04' && (matrix.build.TARGET == 'x86_64-unknown-linux-gnu' || matrix.build.TARGET == 'aarch64-unknown-linux-gnu')
+        shell: bash
+        run: |
+          mkdir -p packages
+          find target/${{ matrix.build.TARGET }}/debian -name "*.deb" -exec cp {} packages/ \;
+          find target/generate-rpm -name "*.rpm" -exec cp {} packages/ \;
 
       - name: Generate a changelog
         uses: orhun/git-cliff-action@v4
