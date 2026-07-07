@@ -1,4 +1,4 @@
-use crate::playlist::Track;
+use crate::{download, playlist::Track};
 use anyhow::Error;
 use rusty_ytdl::search::{SearchOptions, SearchResult};
 use std::path::{Path, PathBuf};
@@ -53,7 +53,7 @@ pub struct YoutubeService {
 impl YoutubeService {
     pub async fn new(download_dir: PathBuf, config_dir: &Path) -> anyhow::Result<Self> {
         // Install yt-dlp:
-        let ytdlp_path = config_dir.join("yt-dlp");
+        let ytdlp_path = download::ytdlp_path(config_dir);
         if !ytdlp_path.exists() {
             let installer = LibraryInstaller::new(config_dir.to_path_buf());
             println!(

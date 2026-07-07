@@ -1,6 +1,5 @@
 use std::{
-    fs::{create_dir_all, read_to_string, Permissions},
-    os::unix::fs::PermissionsExt,
+    fs::{create_dir_all, read_to_string},
     path::Path,
     sync::Arc,
 };
@@ -76,6 +75,10 @@ fn verify_checksum(
     Ok(got)
 }
 
+pub fn ytdlp_path(config_dir: &Path) -> std::path::PathBuf {
+    config_dir.join(ytdlp_file_name())
+}
+
 pub fn download_ytdlp(config_dir: &Path) -> anyhow::Result<()> {
     // Create config dir if not exists
     if !config_dir.exists() {
@@ -83,7 +86,7 @@ pub fn download_ytdlp(config_dir: &Path) -> anyhow::Result<()> {
     }
 
     let ytdlp_sha256checksum_path = config_dir.join("SHA2-256SUMS");
-    let ytdlp_path = config_dir.join("yt-dlp");
+    let ytdlp_path = ytdlp_path(config_dir);
 
     if ytdlp_path.exists() {
         // yt-dlp already exists, no need to download
@@ -97,12 +100,7 @@ pub fn download_ytdlp(config_dir: &Path) -> anyhow::Result<()> {
 
     let yt_dlp_release_url = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/";
     let yt_dlp_sha256checksum = "SHA2-256SUMS";
-    #[cfg(target_os = "linux")]
-    let yt_dlp_binary = "yt-dlp_linux";
-    #[cfg(target_os = "macos")]
-    let yt_dlp_binary = "yt-dlp_macos";
-    #[cfg(target_os = "windows")]
-    let yt_dlp_binary = "yt-dlp.exe";
+    let yt_dlp_binary = ytdlp_release_asset();
 
     let yt_dlp_url = format!("{}{}", yt_dlp_release_url, yt_dlp_binary);
     let yt_dlp_sha256_url = format!("{}{}", yt_dlp_release_url, yt_dlp_sha256checksum);
@@ -148,11 +146,43 @@ pub fn download_ytdlp(config_dir: &Path) -> anyhow::Result<()> {
                     &name_from_downloader, &yt_dlp_name
                 );
                 if name_from_downloader == yt_dlp_name {
-                    std::fs::set_permissions(&ytdlp_path, Permissions::from_mode(0o0775))?;
+                    make_executable(&ytdlp_path)?;
                 }
             }
         };
     }
 
+    Ok(())
+}
+
+fn ytdlp_file_name() -> &'static str {
+    if cfg!(windows) {
+        "yt-dlp.exe"
+    } else {
+        "yt-dlp"
+    }
+}
+
+fn ytdlp_release_asset() -> &'static str {
+    if cfg!(target_os = "windows") {
+        "yt-dlp.exe"
+    } else if cfg!(target_os = "macos") {
+        "yt-dlp_macos"
+    } else {
+        "yt-dlp_linux"
+    }
+}
+
+#[cfg(unix)]
+fn make_executable(path: &Path) -> anyhow::Result<()> {
+    use std::fs::Permissions;
+    use std::os::unix::fs::PermissionsExt;
+
+    std::fs::set_permissions(path, Permissions::from_mode(0o775))?;
+    Ok(())
+}
+
+#[cfg(not(unix))]
+fn make_executable(_path: &Path) -> anyhow::Result<()> {
     Ok(())
 }
