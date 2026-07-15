@@ -23,13 +23,13 @@ jobs:
               OS: windows-2022,
               TOOLCHAIN: stable,
               TARGET: x86_64-pc-windows-msvc,
-              ARGS: "--no-default-features",
+              ARGS: "",
             }
           - {
               OS: macos-14,
               TOOLCHAIN: stable,
               TARGET: aarch64-apple-darwin,
-              ARGS: "--no-default-features",
+              ARGS: "",
             }
     steps:
       - name: Checkout the repository
@@ -85,27 +85,13 @@ jobs:
               > tusic-${{ env.RELEASE_VERSION }}-${{ matrix.build.TARGET }}.tar.gz.sha512
           fi
 
-      - name: Install cargo-deb and cargo-generate-rpm
+      - name: cargo-deb and cargo-generate-rpm
         if: matrix.build.OS == 'ubuntu-latest'
         run: |
           cargo install cargo-deb
           cargo install cargo-generate-rpm
-
-      - name: Build .deb package
-        if: matrix.build.OS == 'ubuntu-latest' && (matrix.build.TARGET == 'x86_64-unknown-linux-gnu' || matrix.build.TARGET == 'aarch64-unknown-linux-gnu')
-        run: cargo deb --target ${{ matrix.build.TARGET }} --no-build ${{ matrix.build.ARGS }}
-
-      - name: Build .rpm package
-        if: matrix.build.OS == 'ubuntu-latest' && (matrix.build.TARGET == 'x86_64-unknown-linux-gnu' || matrix.build.TARGET == 'aarch64-unknown-linux-gnu')
-        run: cargo generate-rpm --target ${{ matrix.build.TARGET }} ${{ matrix.build.ARGS }}
-
-      - name: Move package artifacts
-        if: matrix.build.OS == 'ubuntu-latest' && (matrix.build.TARGET == 'x86_64-unknown-linux-gnu' || matrix.build.TARGET == 'aarch64-unknown-linux-gnu')
-        shell: bash
-        run: |
-          mkdir -p packages
-          find target/${{ matrix.build.TARGET }}/debian -name "*.deb" -exec cp {} packages/ \;
-          find target/generate-rpm -name "*.rpm" -exec cp {} packages/ \;
+          cargo deb --target ${{ matrix.build.TARGET }} --no-build ${{ matrix.build.ARGS }} --output release/tusic-${{ env.RELEASE_VERSION }}-${{ matrix.build.TARGET }}.deb
+          cargo generate-rpm --target ${{ matrix.build.TARGET }} ${{ matrix.build.ARGS }} -o release/tusic-${{ env.RELEASE_VERSION }}-${{ matrix.build.TARGET }}.rpm
 
       - name: Generate a changelog
         uses: orhun/git-cliff-action@v4
@@ -124,4 +110,4 @@ jobs:
           tag: ${{ github.ref }}
           release_name: "Release v${{ env.RELEASE_VERSION }}"
           body: ${{ steps.git-cliff.outputs.content }}
-          repo_token: ${{ secrets.RELEASE_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
