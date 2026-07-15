@@ -90,8 +90,8 @@ jobs:
         run: |
           cargo install cargo-deb
           cargo install cargo-generate-rpm
-          cargo deb --target ${{ matrix.build.TARGET }} --no-build ${{ matrix.build.ARGS }} --output release/tusic-${{ env.RELEASE_VERSION }}-${{ matrix.build.TARGET }}.deb
-          cargo generate-rpm --target ${{ matrix.build.TARGET }} ${{ matrix.build.ARGS }} -o release/tusic-${{ env.RELEASE_VERSION }}-${{ matrix.build.TARGET }}.rpm
+          cargo deb --target ${{ matrix.build.TARGET }} --no-build ${{ matrix.build.ARGS }} --output tusic-${{ env.RELEASE_VERSION }}-${{ matrix.build.TARGET }}.deb
+          cargo generate-rpm --target ${{ matrix.build.TARGET }} ${{ matrix.build.ARGS }} -o tusic-${{ env.RELEASE_VERSION }}-${{ matrix.build.TARGET }}.rpm
 
       - name: Generate a changelog
         uses: orhun/git-cliff-action@v4
